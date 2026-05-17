@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Deploy to EC2
@@ -23,5 +23,25 @@ jobs:
 
           script: |
             cd fullstackapp
+
             git pull origin master
-            docker ps
+
+            sudo docker build -t frontend ./frontend
+            sudo docker build -t backend ./backend
+
+            sudo docker stop frontend-container || true
+            sudo docker rm frontend-container || true
+
+            sudo docker stop backend-container || true
+            sudo docker rm backend-container || true
+
+            sudo docker run -d \
+              -p 3000:3000 \
+              --name frontend-container \
+              frontend
+
+            sudo docker run -d \
+              --env-file backend/.env \
+              -p 5000:5000 \
+              --name backend-container \
+              backend
