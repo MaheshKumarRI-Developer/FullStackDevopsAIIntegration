@@ -22,8 +22,25 @@ services:
     env_file:
       - ./backend/.env
 
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+      - EMBEDDING_URL=http://embedding-service:8000/embed
+
     depends_on:
       - mongodb
+      - qdrant
+      - embedding-service
+
+  embedding-service:
+    build:
+      context: ./backend/src/ai/embedding-service.py
+      dockerfile: Dockerfile
+    image: embedding-service
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - qdrant
 
   mongodb:
     image: mongo
@@ -34,5 +51,16 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  qdrant:
+    image: qdrant/qdrant
+
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+
+    volumes:
+      - qdrant-data:/qdrant/storage
+
 volumes:
   mongo-data:
+  qdrant-data:

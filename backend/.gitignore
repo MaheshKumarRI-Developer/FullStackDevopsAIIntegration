@@ -1,4 +1,4 @@
-node_modules
+# Backend .gitignore for Fruit App
+node_modules/
 .env
-dist
-build
+*.log
